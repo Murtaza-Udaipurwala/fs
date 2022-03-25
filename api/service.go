@@ -1,8 +1,10 @@
 package api
 
 import (
+	"mime/multipart"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/murtaza-udaipurwala/fs/db"
 )
@@ -48,4 +50,24 @@ func (s *Service) Delete(id string) error {
 	}
 
 	return s.db.Del(id)
+}
+
+func (s *Service) Create(id string, file multipart.File) *HTTPErr {
+	path := path(id)
+	err := save(path, file)
+	if err != nil {
+		return Err(err.Error(), http.StatusInternalServerError)
+	}
+
+	md := MetaData{
+		Expiry:    time.Now().Add(time.Hour * 24),
+		IsOneTime: false,
+	}
+
+	err = s.db.Set(id, md)
+	if err != nil {
+		return Err(err.Error(), http.StatusInternalServerError)
+	}
+
+	return nil
 }
