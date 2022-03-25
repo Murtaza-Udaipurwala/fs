@@ -1,12 +1,13 @@
 package api
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/murtaza-udaipurwala/fs/db"
+	lg "github.com/murtaza-udaipurwala/fs/log"
 )
 
 type Service struct {
@@ -69,7 +70,7 @@ func (s *Service) Create(id string, f *File, onet bool) (float64, *HTTPErr) {
 		return 0, Err(err.Error(), http.StatusInternalServerError)
 	}
 
-	log.Printf("[%s]size: %v", id, size)
+	lg.LogInfo("api", id, fmt.Sprintf("%v", size))
 
 	md := MetaData{
 		Expiry:    exp,

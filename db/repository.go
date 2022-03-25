@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gomodule/redigo/redis"
+	lg "github.com/murtaza-udaipurwala/fs/log"
 )
 
 var ErrDoesNotExist = errors.New("key does not exist")
@@ -16,10 +17,12 @@ func (r *Repo) Set(key string, val []byte) error {
 func (r *Repo) Get(key string) ([]byte, error) {
 	val, err := r.conn.Do("GET", key)
 	if err != nil {
+		lg.LogErr("db", "r.Get", err)
 		return nil, err
 	}
 
 	if val == nil {
+		lg.LogErr("db", "r.Get", ErrDoesNotExist)
 		return nil, ErrDoesNotExist
 	}
 

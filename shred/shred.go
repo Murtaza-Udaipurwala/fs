@@ -1,16 +1,12 @@
 package shred
 
 import (
-	"log"
 	"time"
 
 	"github.com/murtaza-udaipurwala/fs/api"
 	"github.com/murtaza-udaipurwala/fs/db"
+	lg "github.com/murtaza-udaipurwala/fs/log"
 )
-
-func logErr(ctx, err string) {
-	log.Printf("Expire.%s.Err: %s\n", ctx, err)
-}
 
 func isExpired(md *api.MetaData) bool {
 	dur := md.Expiry.Sub(time.Now()).Round(time.Minute)
@@ -28,21 +24,22 @@ func Shred(apiS *api.Service, dbS *db.Service) {
 
 		keys, err := dbS.GetAll()
 		if err != nil {
-			logErr("loop", err.Error())
+			lg.LogErr("shred", "Shred", err)
 			continue
 		}
 
 		for _, key := range keys {
 			md, err := apiS.GetMetaData(key)
 			if err != nil {
-				logErr("loop", err.Msg)
+				lg.LogInfo("shred", "Shred", err.Msg)
 				continue
 			}
 
 			if isExpired(md) {
 				err := apiS.Delete(key)
 				if err != nil {
-					logErr("loop", err.Error())
+					lg.LogErr("shred", "Shred", err)
+					continue
 				}
 			}
 		}

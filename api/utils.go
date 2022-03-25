@@ -20,6 +20,7 @@ func fileURL(id string) string {
 	return fmt.Sprintf("%s/%s", os.Getenv("BASE_URL"), id)
 }
 
+// -------------------------------- ID ----------------------------------------
 var chars = []byte{
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
 	'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
@@ -43,7 +44,7 @@ func NewID() (string, error) {
 	return string(b), nil
 }
 
-func genUID(ext string) (string, error) {
+func genID(ext string) (string, error) {
 	var id string
 	var err error
 
@@ -63,8 +64,19 @@ func genUID(ext string) (string, error) {
 	}
 
 	return id, nil
-
 }
+
+func InUse(id string) bool {
+	path := path(id)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
+}
+
+// -------------------------------- ID ----------------------------------------
 
 func save(path string, f multipart.File) error {
 	dst, err := os.Create(path)
@@ -81,16 +93,6 @@ func save(path string, f multipart.File) error {
 func validateSize(w http.ResponseWriter, r *http.Request) bool {
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		return false
-	}
-
-	return true
-}
-
-func InUse(id string) bool {
-	path := path(id)
-
-	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
 	}
 

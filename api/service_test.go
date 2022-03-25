@@ -38,25 +38,3 @@ func TestGetMetaData(t *testing.T) {
 		t.Fatal("Failed retrieving metadata")
 	}
 }
-
-// func TestRetrieve(t *testing.T) {
-// 	err := os.WriteFile("../uploads/hello", []byte("hello world"), 0700)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-
-// 	buff, httpErr := s.Retrieve("hello")
-// 	if httpErr != nil {
-// 		t.Fatal(httpErr.Msg)
-// 	}
-
-// 	t.Log(string(buff))
-// }
-
-// func TestDelete(t *testing.T) {
-// 	dbR.On("Del", mock.AnythingOfType("string")).Return(nil)
-// 	err := s.Delete("hello")
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// }

@@ -66,7 +66,7 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 
 	defer file.File.Close()
 
-	id, err := genUID(file.Ext)
+	id, err := genID(file.Ext)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
