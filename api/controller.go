@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -13,7 +11,7 @@ type IService interface {
 	Retrieve(id string) ([]byte, *HTTPErr)
 	GetMetaData(id string) (*MetaData, *HTTPErr)
 	Delete(id string) error
-	Create(id string, file multipart.File) *HTTPErr
+	Create(id string, f multipart.File, onet bool) *HTTPErr
 }
 
 type Controller struct {
@@ -33,13 +31,26 @@ func (c *Controller) Retrieve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buff, err := c.s.Retrieve(id)
-	if err != nil {
-		http.Error(w, err.Msg, err.Status)
+	md, httpErr := c.s.GetMetaData(id)
+	if httpErr != nil {
+		http.Error(w, httpErr.Msg, httpErr.Status)
+		return
+	}
+
+	buff, httpErr := c.s.Retrieve(id)
+	if httpErr != nil {
+		http.Error(w, httpErr.Msg, httpErr.Status)
 		return
 	}
 
 	fmt.Fprintln(w, string(buff))
+
+	if md.IsOneTime {
+		err := c.s.Delete(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
 }
 
 func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
@@ -48,29 +59,27 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, header, err := r.FormFile("file")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	defer file.Close()
-
-	ext := filepath.Ext(header.Filename)
-	id, err := genUID(ext)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	httpErr := c.s.Create(id, file)
+	file, onet, httpErr := parseForm(r)
 	if httpErr != nil {
 		http.Error(w, httpErr.Msg, httpErr.Status)
 		return
 	}
 
-	url := fmt.Sprintf("%s/%s", os.Getenv("BASE_URL"), id)
-	fmt.Fprintln(w, url)
+	defer file.File.Close()
+
+	id, err := genUID(file.Ext)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httpErr = c.s.Create(id, file.File, onet)
+	if httpErr != nil {
+		http.Error(w, httpErr.Msg, httpErr.Status)
+		return
+	}
+
+	fmt.Fprintln(w, fileURL(id))
 }
 
 func (c *Controller) Handler(w http.ResponseWriter, r *http.Request) {

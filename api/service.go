@@ -52,16 +52,16 @@ func (s *Service) Delete(id string) error {
 	return s.db.Del(id)
 }
 
-func (s *Service) Create(id string, file multipart.File) *HTTPErr {
+func (s *Service) Create(id string, f multipart.File, onet bool) *HTTPErr {
 	path := path(id)
-	err := save(path, file)
+	err := save(path, f)
 	if err != nil {
 		return Err(err.Error(), http.StatusInternalServerError)
 	}
 
 	md := MetaData{
 		Expiry:    time.Now().Add(time.Hour * 24),
-		IsOneTime: false,
+		IsOneTime: onet,
 	}
 
 	err = s.db.Set(id, md)
