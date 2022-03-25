@@ -21,3 +21,8 @@ func (r *Repo) Get(key string) ([]byte, error) {
 
 	return val.([]byte), nil
 }
+
+func (r *Repo) Del(key string) error {
+	_, err := r.conn.Do("DEL", key)
+	return err
+}

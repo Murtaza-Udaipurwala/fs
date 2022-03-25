@@ -47,3 +47,8 @@ func TestSet(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDel(t *testing.T) {
+	r.On("Del", mock.AnythingOfType("string")).Return(nil)
+	s.Del("XXXXX")
+}

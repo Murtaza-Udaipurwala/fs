@@ -5,6 +5,7 @@ import "encoding/json"
 type IRepo interface {
 	Set(key string, val []byte) error
 	Get(key string) ([]byte, error)
+	Del(key string) error
 }
 
 type Service struct {
@@ -31,4 +32,8 @@ func (s *Service) Get(key string, out interface{}) error {
 	}
 
 	return json.Unmarshal(p, out)
+}
+
+func (s *Service) Del(key string) error {
+	return s.r.Del(key)
 }
