@@ -4,12 +4,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/murtaza-udaipurwala/fs/db"
 )
 
-func Serve(dbS db.Service) {
-	s := NewService(dbS)
+func Serve(s *Service) {
 	c := NewController(s)
 
 	mux := http.NewServeMux()

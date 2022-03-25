@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/murtaza-udaipurwala/fs/api"
 	"github.com/murtaza-udaipurwala/fs/db"
+	"github.com/murtaza-udaipurwala/fs/expire"
 )
 
 func setup() error {
@@ -23,7 +24,11 @@ func main() {
 	log.Printf("PORT: %s\n", os.Getenv("PORT"))
 	log.Printf("BASE_URL: %s\n", os.Getenv("BASE_URL"))
 
-	r := db.Connect()
-	s := db.NewService(r)
-	api.Serve(*s)
+	dbR := db.Connect()
+	dbS := db.NewService(dbR)
+	apiS := api.NewService(*dbS)
+
+	go expire.Shred(apiS, dbS)
+
+	api.Serve(apiS)
 }
