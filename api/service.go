@@ -9,7 +9,7 @@ import (
 )
 
 type Service struct {
-	r db.IRepo
+	db db.Service
 }
 
 func (s *Service) Retrieve(id string) ([]byte, *HTTPErr) {
@@ -20,4 +20,19 @@ func (s *Service) Retrieve(id string) ([]byte, *HTTPErr) {
 	}
 
 	return buff, nil
+}
+
+func (s *Service) GetMetaData(id string) (*MetaData, *HTTPErr) {
+	var out MetaData
+	err := s.db.Get(id, &out)
+
+	if err != nil {
+		if err == db.ErrDoesNotExist {
+			return nil, Err("404 not found", http.StatusNotFound)
+		}
+
+		return nil, Err(err.Error(), http.StatusInternalServerError)
+	}
+
+	return &out, nil
 }
