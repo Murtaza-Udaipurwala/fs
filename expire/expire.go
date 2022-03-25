@@ -41,7 +41,9 @@ func Shred(apiS *api.Service, dbS *db.Service) {
 
 			if isExpired(md) {
 				err := apiS.Delete(key)
-				logErr("loop", err.Error())
+				if err != nil {
+					logErr("loop", err.Error())
+				}
 			}
 		}
 	}
