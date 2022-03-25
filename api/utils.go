@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 func path(id string) string {
@@ -51,6 +52,8 @@ func genUID(ext string) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+		id += ext
 
 		if InUse(id) {
 			continue
@@ -114,4 +117,37 @@ func parseForm(r *http.Request) (*File, bool, *HTTPErr) {
 	}
 
 	return &File{file, ext}, onet, nil
+}
+
+const scale = 1024 * 1024
+
+func CalExpiry(size int64) (time.Time, error) {
+	var dur uint
+
+	if size <= 3*scale {
+		dur = 240
+	} else {
+		dur = uint((2328*scale - 216*size) / (7 * scale))
+	}
+
+	t, err := time.ParseDuration(fmt.Sprintf("%dh", dur))
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return time.Now().Add(t), nil
+}
+
+func GetSize(path string) (int64, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return 0, err
+	}
+
+	i, err := f.Stat()
+	if err != nil {
+		return 0, err
+	}
+
+	return i.Size(), nil
 }
