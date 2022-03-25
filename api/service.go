@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
@@ -13,7 +12,7 @@ type Service struct {
 }
 
 func (s *Service) Retrieve(id string) ([]byte, *HTTPErr) {
-	path := fmt.Sprintf("%s/%s", uploadDir, id)
+	path := path(id)
 	buff, err := os.ReadFile(path)
 	if err != nil {
 		return nil, Err(err.Error(), http.StatusInternalServerError)
@@ -35,4 +34,14 @@ func (s *Service) GetMetaData(id string) (*MetaData, *HTTPErr) {
 	}
 
 	return &out, nil
+}
+
+func (s *Service) Delete(id string) error {
+	path := path(id)
+	err := os.Remove(path)
+	if err != nil {
+		return err
+	}
+
+	return s.db.Del(id)
 }
