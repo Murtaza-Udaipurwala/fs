@@ -18,3 +18,24 @@ func TestNewID(t *testing.T) {
 		t.Fatal("invalid ID")
 	}
 }
+
+func TestGetSize(t *testing.T) {
+	_, err := api.GetSize("./api.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCalExpiry(t *testing.T) {
+	// <= 3M
+	_, err := api.CalExpiry(1024 * 1024 * 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// > 3M
+	_, err = api.CalExpiry(1024 * 1024 * 6)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
