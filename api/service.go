@@ -11,6 +11,10 @@ type Service struct {
 	db db.Service
 }
 
+func NewService(db db.Service) *Service {
+	return &Service{db}
+}
+
 func (s *Service) Retrieve(id string) ([]byte, *HTTPErr) {
 	path := path(id)
 	buff, err := os.ReadFile(path)
