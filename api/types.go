@@ -1,9 +1,6 @@
 package api
 
-import (
-	"os"
-	"time"
-)
+import "time"
 
 type MetaData struct {
 	Expiry    time.Time `json:"expiry"`
@@ -22,7 +19,5 @@ type Resp struct {
 
 const (
 	maxUploadSize = 1024 * 1024 * 10
-	uploadDir     = "../uploads"
+	uploadDir     = "uploads"
 )
-
-var baseURL = os.Getenv("BASE_URL")

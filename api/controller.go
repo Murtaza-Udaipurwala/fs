@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -28,7 +29,7 @@ func (c *Controller) Retrieve(w http.ResponseWriter, r *http.Request) {
 
 	if len(id) == 0 {
 		w.Header().Set("Content-Type", "text/html")
-		fmt.Fprint(w, "No-nonsense file hosting service")
+		fmt.Fprintln(w, "No-nonsense file hosting service")
 		return
 	}
 
@@ -38,7 +39,7 @@ func (c *Controller) Retrieve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprint(w, string(buff))
+	fmt.Fprintln(w, string(buff))
 }
 
 func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +69,20 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/%s", baseURL, id)
-	fmt.Fprint(w, url)
+	url := fmt.Sprintf("%s/%s", os.Getenv("BASE_URL"), id)
+	fmt.Fprintln(w, url)
+}
+
+func (c *Controller) Handler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		c.Retrieve(w, r)
+		return
+	}
+
+	if r.Method == "POST" {
+		c.Create(w, r)
+		return
+	}
+
+	http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 }
