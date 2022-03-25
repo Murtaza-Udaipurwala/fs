@@ -1,2 +1,1 @@
-# fs
-No-nonsense file hosting service
+> No-nonsense file hosting service
