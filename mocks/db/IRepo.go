@@ -23,6 +23,27 @@ func (_m *IRepo) Del(key string) error {
 	return r0
 }
 
+// Exists provides a mock function with given fields: key
+func (_m *IRepo) Exists(key string) (bool, error) {
+	ret := _m.Called(key)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(key)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(key)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Get provides a mock function with given fields: key
 func (_m *IRepo) Get(key string) ([]byte, error) {
 	ret := _m.Called(key)
@@ -39,6 +60,29 @@ func (_m *IRepo) Get(key string) ([]byte, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(key)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetAll provides a mock function with given fields:
+func (_m *IRepo) GetAll() ([]string, error) {
+	ret := _m.Called()
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func() []string); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}
