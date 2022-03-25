@@ -2,7 +2,6 @@ package api_test
 
 import (
 	"encoding/json"
-	"os"
 	"testing"
 	"time"
 
@@ -22,20 +21,6 @@ var (
 	}
 )
 
-func TestRetrieve(t *testing.T) {
-	err := os.WriteFile("../uploads/hello", []byte("hello world"), 0700)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	buff, httpErr := s.Retrieve("hello")
-	if httpErr != nil {
-		t.Fatal(httpErr.Msg)
-	}
-
-	t.Log(string(buff))
-}
-
 func TestGetMetaData(t *testing.T) {
 	p, err := json.Marshal(d)
 	if err != nil {
@@ -54,10 +39,24 @@ func TestGetMetaData(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
-	dbR.On("Del", mock.AnythingOfType("string")).Return(nil)
-	err := s.Delete("hello")
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+// func TestRetrieve(t *testing.T) {
+// 	err := os.WriteFile("../uploads/hello", []byte("hello world"), 0700)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+
+// 	buff, httpErr := s.Retrieve("hello")
+// 	if httpErr != nil {
+// 		t.Fatal(httpErr.Msg)
+// 	}
+
+// 	t.Log(string(buff))
+// }
+
+// func TestDelete(t *testing.T) {
+// 	dbR.On("Del", mock.AnythingOfType("string")).Return(nil)
+// 	err := s.Delete("hello")
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// }
