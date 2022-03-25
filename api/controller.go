@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	"path/filepath"
 	"strings"
 )
 
@@ -38,4 +39,35 @@ func (c *Controller) Retrieve(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprint(w, string(buff))
+}
+
+func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
+	if !validateSize(w, r) {
+		http.Error(w, "file too big", http.StatusBadRequest)
+		return
+	}
+
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	defer file.Close()
+
+	ext := filepath.Ext(header.Filename)
+	id, err := genUID(ext)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httpErr := c.s.Create(id, file)
+	if httpErr != nil {
+		http.Error(w, httpErr.Msg, httpErr.Status)
+		return
+	}
+
+	url := fmt.Sprintf("%s/%s", baseURL, id)
+	fmt.Fprint(w, url)
 }
