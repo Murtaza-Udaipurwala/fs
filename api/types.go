@@ -1,6 +1,9 @@
 package api
 
-import "time"
+import (
+	"mime/multipart"
+	"time"
+)
 
 type MetaData struct {
 	Expiry    time.Time `json:"expiry"`
@@ -15,6 +18,11 @@ type HTTPErr struct {
 type Resp struct {
 	Err string `json:"error,omitempty"`
 	URL string `json:"url,omitempty"`
+}
+
+type File struct {
+	File multipart.File
+	Ext  string
 }
 
 const (
