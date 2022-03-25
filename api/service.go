@@ -1,7 +1,7 @@
 package api
 
 import (
-	"mime/multipart"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -52,22 +52,34 @@ func (s *Service) Delete(id string) error {
 	return s.db.Del(id)
 }
 
-func (s *Service) Create(id string, f multipart.File, onet bool) *HTTPErr {
+func (s *Service) Create(id string, f *File, onet bool) (float64, *HTTPErr) {
 	path := path(id)
-	err := save(path, f)
+	err := save(path, f.File)
 	if err != nil {
-		return Err(err.Error(), http.StatusInternalServerError)
+		return 0, Err(err.Error(), http.StatusInternalServerError)
 	}
 
+	size, err := GetSize(path)
+	if err != nil {
+		return 0, Err(err.Error(), http.StatusInternalServerError)
+	}
+
+	exp, err := CalExpiry(size)
+	if err != nil {
+		return 0, Err(err.Error(), http.StatusInternalServerError)
+	}
+
+	log.Printf("[%s]size: %v", id, size)
+
 	md := MetaData{
-		Expiry:    time.Now().Add(time.Hour * 24),
+		Expiry:    exp,
 		IsOneTime: onet,
 	}
 
 	err = s.db.Set(id, md)
 	if err != nil {
-		return Err(err.Error(), http.StatusInternalServerError)
+		return 0, Err(err.Error(), http.StatusInternalServerError)
 	}
 
-	return nil
+	return exp.Sub(time.Now()).Round(time.Hour).Hours(), nil
 }

@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"mime/multipart"
 	"net/http"
 	"strings"
 )
@@ -11,7 +10,7 @@ type IService interface {
 	Retrieve(id string) ([]byte, *HTTPErr)
 	GetMetaData(id string) (*MetaData, *HTTPErr)
 	Delete(id string) error
-	Create(id string, f multipart.File, onet bool) *HTTPErr
+	Create(id string, f *File, onet bool) (float64, *HTTPErr)
 }
 
 type Controller struct {
@@ -73,13 +72,14 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpErr = c.s.Create(id, file.File, onet)
+	exp, httpErr := c.s.Create(id, file, onet)
 	if httpErr != nil {
 		http.Error(w, httpErr.Msg, httpErr.Status)
 		return
 	}
 
-	fmt.Fprintln(w, fileURL(id))
+	url := fileURL(id)
+	fmt.Fprintf(w, "%s\nfile will be deleted in %.0fh\n", url, exp)
 }
 
 func (c *Controller) Handler(w http.ResponseWriter, r *http.Request) {

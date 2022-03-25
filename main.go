@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/murtaza-udaipurwala/fs/api"
 	"github.com/murtaza-udaipurwala/fs/db"
-	"github.com/murtaza-udaipurwala/fs/expire"
+	"github.com/murtaza-udaipurwala/fs/shred"
 )
 
 func setup() error {
@@ -28,7 +28,7 @@ func main() {
 	dbS := db.NewService(dbR)
 	apiS := api.NewService(*dbS)
 
-	go expire.Shred(apiS, dbS)
+	go shred.Shred(apiS, dbS)
 
 	api.Serve(apiS)
 }
