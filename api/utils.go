@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 )
 
@@ -35,6 +36,27 @@ func NewID() (string, error) {
 	return string(b), nil
 }
 
+func genUID(ext string) (string, error) {
+	var id string
+	var err error
+
+	for {
+		id, err = NewID()
+		if err != nil {
+			return "", err
+		}
+
+		if InUse(id) {
+			continue
+		}
+
+		break
+	}
+
+	return id, nil
+
+}
+
 func save(path string, f multipart.File) error {
 	dst, err := os.Create(path)
 	if err != nil {
@@ -45,4 +67,23 @@ func save(path string, f multipart.File) error {
 
 	_, err = io.Copy(dst, f)
 	return err
+}
+
+func validateSize(w http.ResponseWriter, r *http.Request) bool {
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+		return false
+	}
+
+	return true
+}
+
+func InUse(id string) bool {
+	path := path(id)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
 }
