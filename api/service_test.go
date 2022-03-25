@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"encoding/json"
+	"os"
 	"testing"
 	"time"
 
@@ -22,9 +23,14 @@ var (
 )
 
 func TestRetrieve(t *testing.T) {
-	buff, err := s.Retrieve("hello")
+	err := os.WriteFile("../uploads/hello", []byte("hello world"), 0700)
 	if err != nil {
-		t.Fatal(err.Msg)
+		t.Fatal(err)
+	}
+
+	buff, httpErr := s.Retrieve("hello")
+	if httpErr != nil {
+		t.Fatal(httpErr.Msg)
 	}
 
 	t.Log(string(buff))
