@@ -7,13 +7,13 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-type DB struct {
+type Repo struct {
 	conn redis.Conn
 }
 
-func Connect() *DB {
+func Connect() *Repo {
 	pool := newPool()
-	return &DB{conn: pool.Get()}
+	return &Repo{conn: pool.Get()}
 }
 
 func newPool() *redis.Pool {
