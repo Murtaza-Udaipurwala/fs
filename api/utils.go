@@ -7,10 +7,16 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
 )
 
 func path(id string) string {
 	return fmt.Sprintf("%s/%s", uploadDir, id)
+}
+
+func fileURL(id string) string {
+	return fmt.Sprintf("%s/%s", os.Getenv("BASE_URL"), id)
 }
 
 var chars = []byte{
@@ -86,4 +92,26 @@ func InUse(id string) bool {
 	}
 
 	return true
+}
+
+func parseForm(r *http.Request) (*File, bool, *HTTPErr) {
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		return nil, false, Err(err.Error(), http.StatusBadRequest)
+	}
+
+	ext := filepath.Ext(header.Filename)
+
+	v := r.FormValue("onetime")
+	var onet bool
+
+	if len(v) != 0 {
+		var err error
+		onet, err = strconv.ParseBool(v)
+		if err != nil {
+			return nil, false, Err(err.Error(), http.StatusBadRequest)
+		}
+	}
+
+	return &File{file, ext}, onet, nil
 }
