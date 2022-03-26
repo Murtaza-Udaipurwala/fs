@@ -21,7 +21,8 @@ func newPool() *redis.Pool {
 		MaxIdle:   80,
 		MaxActive: 12000,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", ":"+os.Getenv("REDIS_PORT"))
+			c, err := redis.DialURL(os.Getenv("REDIS_URL"))
+			// c, err := redis.Dial("tcp", ":"+os.Getenv("REDIS_PORT"))
 			if err != nil {
 				log.Panic(err)
 			}
