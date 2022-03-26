@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,6 +25,8 @@ func Serve(s *Service) {
 		Expiration: time.Second * 30,
 		Max:        3,
 	}))
+
+	app.Use(cors.New())
 
 	c := NewController(s)
 	route(app, c)
