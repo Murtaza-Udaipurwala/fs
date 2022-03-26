@@ -3,38 +3,57 @@ package db
 import (
 	"errors"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/boltdb/bolt"
 )
 
 var ErrDoesNotExist = errors.New("key does not exist")
 
 func (r *Repo) Set(key string, val []byte) error {
-	_, err := r.conn.Do("SET", key, val)
+	err := r.DB.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		return b.Put([]byte(key), val)
+	})
+
 	return err
 }
 
 func (r *Repo) Get(key string) ([]byte, error) {
-	val, err := r.conn.Do("GET", key)
-	if err != nil {
-		return nil, err
-	}
+	var val []byte
 
-	if val == nil {
-		return nil, ErrDoesNotExist
-	}
+	err := r.DB.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		val = b.Get([]byte(key))
+		if val == nil {
+			return ErrDoesNotExist
+		}
 
-	return val.([]byte), nil
+		return nil
+	})
+
+	return val, err
 }
 
 func (r *Repo) Del(key string) error {
-	_, err := r.conn.Do("DEL", key)
+	err := r.DB.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		return b.Delete([]byte(key))
+	})
+
 	return err
 }
 
-func (r *Repo) Exists(key string) (bool, error) {
-	return redis.Bool(r.conn.Do("EXISTS", key))
-}
-
 func (r *Repo) GetAll() ([]string, error) {
-	return redis.Strings(r.conn.Do("KEYS", "*"))
+	var key []string
+
+	err := r.DB.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		err := b.ForEach(func(k, v []byte) error {
+			key = append(key, string(k))
+			return nil
+		})
+
+		return err
+	})
+
+	return key, err
 }
