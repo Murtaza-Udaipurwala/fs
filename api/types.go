@@ -15,17 +15,16 @@ type HTTPErr struct {
 	Status int
 }
 
-type Resp struct {
-	Err string `json:"error,omitempty"`
-	URL string `json:"url,omitempty"`
-}
-
 type File struct {
 	Header *multipart.FileHeader
 	Ext    string
 	Size   int64
 	Onet   bool
 	ID     string
+}
+
+type Query struct {
+	JSON bool
 }
 
 const (
