@@ -4,12 +4,12 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
-	"mime/multipart"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func path(id string) string {
@@ -21,14 +21,6 @@ func fileURL(id string) string {
 }
 
 // -------------------------------- ID ----------------------------------------
-var chars = []byte{
-	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
-	'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-	'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
-	'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
-	'y', 'z',
-}
-
 func NewID() (string, error) {
 	b := make([]byte, 5)
 	_, err := io.ReadAtLeast(rand.Reader, b, 5)
@@ -76,52 +68,29 @@ func InUse(id string) bool {
 	return true
 }
 
-// -------------------------------- ID ----------------------------------------
+// ----------------------------------------------------------------------------
 
-func save(path string, f multipart.File) error {
-	dst, err := os.Create(path)
+func parseForm(ctx *fiber.Ctx) (*File, *HTTPErr) {
+	onet, err := strconv.ParseBool(ctx.FormValue("onetime", "0"))
 	if err != nil {
-		return err
+		return nil, Err(err.Error(), fiber.StatusBadRequest)
 	}
 
-	defer dst.Close()
-
-	_, err = io.Copy(dst, f)
-	return err
-}
-
-func validateSize(w http.ResponseWriter, r *http.Request) bool {
-	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		return false
-	}
-
-	return true
-}
-
-func parseForm(r *http.Request) (*File, bool, *HTTPErr) {
-	file, header, err := r.FormFile("file")
+	h, err := ctx.FormFile("file")
 	if err != nil {
-		return nil, false, Err(err.Error(), http.StatusBadRequest)
+		return nil, Err(err.Error(), fiber.StatusBadRequest)
 	}
 
-	ext := filepath.Ext(header.Filename)
+	ext := filepath.Ext(h.Filename)
+	size := h.Size
 
-	v := r.FormValue("onetime")
-	var onet bool
-
-	if len(v) != 0 {
-		var err error
-		onet, err = strconv.ParseBool(v)
-		if err != nil {
-			return nil, false, Err(err.Error(), http.StatusBadRequest)
-		}
-	}
-
-	return &File{file, ext}, onet, nil
+	return &File{
+		Header: h,
+		Ext:    ext,
+		Size:   size,
+		Onet:   onet,
+	}, nil
 }
-
-const scale = 1024 * 1024
 
 func CalExpiry(size int64) (time.Time, error) {
 	var dur uint
@@ -138,18 +107,4 @@ func CalExpiry(size int64) (time.Time, error) {
 	}
 
 	return time.Now().Add(t), nil
-}
-
-func GetSize(path string) (int64, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return 0, err
-	}
-
-	i, err := f.Stat()
-	if err != nil {
-		return 0, err
-	}
-
-	return i.Size(), nil
 }

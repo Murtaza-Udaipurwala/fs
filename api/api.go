@@ -2,15 +2,24 @@ package api
 
 import (
 	"log"
-	"net/http"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func Serve(s *Service) {
-	c := NewController(s)
+func route(app *fiber.App, c *Controller) {
+	app.Get("/:id", c.Retrieve)
+	app.Post("/", c.Create)
+}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", c.Handler)
+func Serve(s *Service) {
+	app := fiber.New(fiber.Config{
+		BodyLimit:     maxUploadSize,
+		CaseSensitive: true,
+	})
+
+	c := NewController(s)
+	route(app, c)
 
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
@@ -18,5 +27,5 @@ func Serve(s *Service) {
 	}
 
 	log.Printf("Listening on port :%s", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Fatal(app.Listen(":" + port))
 }

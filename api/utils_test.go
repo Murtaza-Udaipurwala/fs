@@ -19,13 +19,6 @@ func TestNewID(t *testing.T) {
 	}
 }
 
-func TestGetSize(t *testing.T) {
-	_, err := api.GetSize("./api.go")
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 func TestCalExpiry(t *testing.T) {
 	// <= 3M
 	_, err := api.CalExpiry(1024 * 1024 * 2)

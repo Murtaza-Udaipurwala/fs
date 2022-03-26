@@ -2,10 +2,10 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/murtaza-udaipurwala/fs/db"
 	lg "github.com/murtaza-udaipurwala/fs/log"
 )
@@ -22,7 +22,7 @@ func (s *Service) Retrieve(id string) ([]byte, *HTTPErr) {
 	path := path(id)
 	buff, err := os.ReadFile(path)
 	if err != nil {
-		return nil, Err(err.Error(), http.StatusInternalServerError)
+		return nil, Err(err.Error(), fiber.StatusInternalServerError)
 	}
 
 	return buff, nil
@@ -34,10 +34,10 @@ func (s *Service) GetMetaData(id string) (*MetaData, *HTTPErr) {
 
 	if err != nil {
 		if err == db.ErrDoesNotExist {
-			return nil, Err("404 not found", http.StatusNotFound)
+			return nil, Err("404 not found", fiber.StatusNotFound)
 		}
 
-		return nil, Err(err.Error(), http.StatusInternalServerError)
+		return nil, Err(err.Error(), fiber.StatusInternalServerError)
 	}
 
 	return &out, nil
@@ -53,33 +53,29 @@ func (s *Service) Delete(id string) error {
 	return s.db.Del(id)
 }
 
-func (s *Service) Create(id string, f *File, onet bool) (float64, *HTTPErr) {
-	path := path(id)
-	err := save(path, f.File)
+func (s *Service) Create(ctx *fiber.Ctx, f *File) (float64, *HTTPErr) {
+	path := path(f.ID)
+
+	err := ctx.SaveFile(f.Header, path)
 	if err != nil {
-		return 0, Err(err.Error(), http.StatusInternalServerError)
+		return 0, Err(err.Error(), fiber.StatusInternalServerError)
 	}
 
-	size, err := GetSize(path)
+	exp, err := CalExpiry(f.Size)
 	if err != nil {
-		return 0, Err(err.Error(), http.StatusInternalServerError)
+		return 0, Err(err.Error(), fiber.StatusInternalServerError)
 	}
 
-	exp, err := CalExpiry(size)
-	if err != nil {
-		return 0, Err(err.Error(), http.StatusInternalServerError)
-	}
-
-	lg.LogInfo("api", id, fmt.Sprintf("%v", size))
+	lg.LogInfo("api", f.ID, fmt.Sprintf("%v", f.Size))
 
 	md := MetaData{
 		Expiry:    exp,
-		IsOneTime: onet,
+		IsOneTime: f.Onet,
 	}
 
-	err = s.db.Set(id, md)
+	err = s.db.Set(f.ID, md)
 	if err != nil {
-		return 0, Err(err.Error(), http.StatusInternalServerError)
+		return 0, Err(err.Error(), fiber.StatusInternalServerError)
 	}
 
 	return exp.Sub(time.Now()).Round(time.Hour).Hours(), nil
