@@ -1,13 +1,11 @@
 package api
 
 import (
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/murtaza-udaipurwala/fs/db"
-	lg "github.com/murtaza-udaipurwala/fs/log"
 )
 
 type Service struct {
@@ -65,8 +63,6 @@ func (s *Service) Create(ctx *fiber.Ctx, f *File) (float64, *HTTPErr) {
 	if err != nil {
 		return 0, Err(err.Error(), fiber.StatusInternalServerError)
 	}
-
-	lg.LogInfo("api", f.ID, fmt.Sprintf("%v", f.Size))
 
 	md := MetaData{
 		Expiry:    exp,

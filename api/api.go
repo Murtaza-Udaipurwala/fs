@@ -1,10 +1,10 @@
 package api
 
 import (
-	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 func route(app *fiber.App, c *Controller) {

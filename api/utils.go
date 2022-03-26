@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	log "github.com/sirupsen/logrus"
 )
 
 func path(id string) string {
@@ -107,4 +108,11 @@ func CalExpiry(size int64) (time.Time, error) {
 	}
 
 	return time.Now().Add(t), nil
+}
+
+func logErr(ctx, err string, status int) {
+	log.WithFields(log.Fields{
+		"err":    err,
+		"status": status,
+	}).Error("api." + ctx)
 }
