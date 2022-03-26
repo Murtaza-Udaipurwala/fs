@@ -20,7 +20,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	log.Infof("REDIS_PORT: %s\n", os.Getenv("REDIS_PORT"))
 	log.Infof("PORT: %s\n", os.Getenv("PORT"))
 	log.Infof("BASE_URL: %s\n", os.Getenv("BASE_URL"))
 

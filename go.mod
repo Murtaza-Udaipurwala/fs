@@ -3,8 +3,8 @@ module github.com/murtaza-udaipurwala/fs
 go 1.18
 
 require (
+	github.com/boltdb/bolt v1.3.1
 	github.com/gofiber/fiber/v2 v2.30.0
-	github.com/gomodule/redigo v1.8.8
 	github.com/joho/godotenv v1.4.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
