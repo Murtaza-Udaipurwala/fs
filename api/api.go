@@ -2,8 +2,10 @@ package api
 
 import (
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,6 +19,11 @@ func Serve(s *Service) {
 		BodyLimit:     maxUploadSize,
 		CaseSensitive: true,
 	})
+
+	app.Use(limiter.New(limiter.Config{
+		Expiration: time.Second * 30,
+		Max:        3,
+	}))
 
 	c := NewController(s)
 	route(app, c)
