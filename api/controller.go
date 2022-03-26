@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strings"
 )
@@ -24,9 +25,22 @@ func NewController(s IService) *Controller {
 func (c *Controller) Retrieve(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/")
 
+	if id == "favicon.ico" {
+		return
+	}
+
 	if len(id) == 0 {
-		w.Header().Set("Content-Type", "text/html")
-		fmt.Fprintln(w, "No-nonsense file hosting service")
+		t, err := template.ParseFiles("web/index.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = t.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
 		return
 	}
 
@@ -79,6 +93,9 @@ func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := fileURL(id)
+
+	w.Header().Set("Content-Type", "application/text")
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "%s\nfile will be deleted in %.0fh\n", url, exp)
 }
 
