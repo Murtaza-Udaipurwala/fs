@@ -24,6 +24,13 @@ func Serve(s *Service) {
 	app.Use(limiter.New(limiter.Config{
 		Expiration: time.Second * 30,
 		Max:        3,
+		Next: func(ctx *fiber.Ctx) bool {
+			if ctx.Method() == "GET" {
+				return true
+			}
+
+			return false
+		},
 	}))
 
 	app.Use(cors.New())

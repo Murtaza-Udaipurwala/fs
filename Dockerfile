@@ -12,6 +12,4 @@ FROM alpine:latest
 
 COPY --from=builder /go/fs/fs main
 
-# COPY --from=builder /go/fs/.env .env
-
 ENTRYPOINT [ "./main" ]
