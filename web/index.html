@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>No-nonsense file hosting service</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            width: 10%;
+            cursor: pointer;
+        }
+
+        .form {
+            margin-top: 1rem;
+        }
+
+        button {
+            margin-top: 1rem;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>No-nonsense file hosting service</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form">
+                <input id="file" type="file" />
+            </div>
+
+            <div class="form">
+                <input id="onetime" type="checkbox" />
+                <label for="onetime">one time</label>
+            </div>
+
+            <button type="submit">upload</button>
+        </form>
+
+        <div id="result"></div>
+
+        <hr />
+
+        <div>
+            <p>
+                source code:
+                <a href="https://github.com/Murtaza-Udaipurwala/nnfs" target="blank">
+                    Link
+                </a>
+            </p>
+        </div>
+
+        <div>
+            <h2>Terms of service</h2>
+            <em>fs.murtazau.xyz</em> is not a platform for:
+            <ul>
+                <li>piracy</li>
+                <li>NSFW</li>
+                <li>malware / botnet</li>
+                <li>anything illegal under the Indian Law</li>
+            </ul>
+        </div>
+
+        <div>
+            <h2>File retention period</h2>
+            <pre>
+   240 |--------------\
+       |               \
+       |                \
+       |                 \
+       |                  \
+       |                   \
+       |                    \
+       |                     \
+       |                      \
+       |                       \
+       |                        \
+       |                         \
+       |                          \
+       |                           \
+       |                            \
+       |                             \
+       |                              \
+hours  |                               \
+       |                                \
+       |                                 \
+       |                                  \
+       |                                   \
+       |                                    \
+       |                                     \
+       |                                      \
+       |                                       \
+       |                                        \
+       |                                         \
+       |                                          \
+       |                                           \
+    24 |
+       |
+       |
+       |
+       |
+       |
+     --------------------------------------------------------
+     0 |              3MiB                             10MiB
+
+                      file size ->
+            </pre>
+
+            <p>
+                <strong>One time</strong> files are deleted immediately once
+                opened.
+            </p>
+
+        </div>
+
+        <div>
+            <p>
+                If you have accidentally uploaded something confidential,
+                please email me at
+                <a href="mailto:murtaza.u6e24@gmail.com">murtaza.u6e24@gmail.com</a>
+                for immediate deletion.
+            </p>
+        </div>
+
+        <script>
+        const form = document.querySelector("form");
+        const result = document.getElementById("result");
+        const isChecked = () => document.getElementById("onetime").checked;
+
+        result.style.visibility = "hidden";
+
+        form.addEventListener("submit", e => {
+            e.preventDefault();
+
+            const formData = new FormData();
+
+            const file = document.getElementById("file").files[0];
+            formData.append("file", file);
+
+            if (isChecked()) {
+                formData.append("onetime", "1");
+            }
+
+            fetch("https://fs.murtazau.xyz/?json=1", {
+                method: 'POST',
+                body: formData,
+            }).then(resp => resp.json())
+              .then(data => {
+            content = `<p>URL: ${data["url"]}</p>
+<p>one time: ${data["onetime"]}</p>
+<p>expiry: ${data["expiry"]}</p>
+`;
+                    result.innerHTML = content;
+                    result.style.visibility = "visible";
+              })
+              .catch(err => ("Something went wrong", err));
+
+              form.reset();
+        });
+        </script>
+    </body>
+</html>
