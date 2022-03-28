@@ -46,10 +46,10 @@ func shred(apiS *api.Service, dbS *db.Service) {
 
 func Start(apiS *api.Service, dbS *db.Service) {
 	for {
-		log.WithField("status", "sleeping for 1 hour").Info("shred")
-		time.Sleep(time.Hour)
-
 		log.WithField("status", "shredding").Info("shred")
 		shred(apiS, dbS)
+
+		log.WithField("status", "sleeping for 1 hour").Info("shred")
+		time.Sleep(time.Hour)
 	}
 }
