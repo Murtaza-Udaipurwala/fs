@@ -4,23 +4,7 @@
         <title>No-nonsense file hosting service</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-        h1 {
-            text-align: center;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        .form {
-            margin-top: 1rem;
-        }
-
-        button {
-            margin-top: 1rem;
-        }
-        </style>
+        <link href="style.css" rel="stylesheet">
     </head>
     <body>
         <h1>No-nonsense file hosting service</h1>
@@ -39,6 +23,7 @@
         </form>
 
         <div id="result"></div>
+        <div id="qrcode"></div>
 
         <hr />
 
@@ -123,88 +108,7 @@ hours  |                               \
             </p>
         </div>
 
-        <script>
-const form = document.querySelector("form");
-const result = document.getElementById("result");
-const btn = document.querySelector("button");
-
-const isChecked = () => document.getElementById("onetime").checked;
-
-result.style.visibility = "hidden";
-
-const populate = (data, uploading, err) => {
-    if (err) {
-        content = "<p>an error occured</p>";
-    } else if (uploading) {
-        content = "<p>Please be patient. Uploading...</p>";
-    } else {
-        content = `<p>URL: ${data["url"]}</p>
-<p>one time: ${data["onetime"]}</p>
-<p>expiry: ${data["expiry"]}</p>
-`;
-    }
-
-    result.innerHTML = content;
-    result.style.visibility = "visible";
-}
-
-const maxSize = 1024 * 1024 * 10
-
-const validateSize = () => {
-    const ifile = document.getElementById("file");
-
-    if (ifile.files.length === 0) {
-        return false
-    }
-
-    const size = ifile.files[0].size;
-
-    if (size > maxSize) {
-        alert("File too big, please select a file less than 10MiB");
-        return false
-    }
-
-    return true
-}
-
-form.addEventListener("submit", e => {
-    e.preventDefault();
-
-    btn.disabled = true;
-
-    populate(null, true, false);
-
-    const formData = new FormData();
-
-    if (!validateSize()) {
-        form.reset();
-        return
-    }
-
-    const file = document.getElementById("file").files[0];
-    formData.append("file", file);
-
-    if (isChecked()) {
-        formData.append("onetime", "1");
-    }
-
-    fetch("https://fs.murtazau.xyz/?json=1", {
-        method: "POST",
-        body: formData,
-    }).then(resp => {
-            if (!resp.ok) {
-                populate(null, false, true);
-                return;
-            }
-
-            return resp.json();
-    }).then(data => {
-            populate(data, false, false);
-            btn.disabled = false;
-    }).catch(() => populate(null, false, true));
-
-    form.reset();
-});
-        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <script src="./main.js"></script>
     </body>
 </html>

@@ -11,7 +11,7 @@ import (
 )
 
 func route(app *fiber.App, c *Controller) {
-	app.Get("/", c.Index)
+	app.Static("/", "./web")
 	app.Get("/:id", c.Retrieve)
 	app.Post("/", c.Create)
 }

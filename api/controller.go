@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"html/template"
 
 	"github.com/gofiber/fiber/v2"
 	log "github.com/sirupsen/logrus"
@@ -134,24 +133,4 @@ func (c *Controller) Create(ctx *fiber.Ctx) error {
 	return ctx.Send([]byte(
 		fmt.Sprintf("%s\nFile will be deleted in %s\n", url, e)),
 	)
-}
-
-func (c *Controller) Index(ctx *fiber.Ctx) error {
-	t, err := template.ParseFiles("web/index.html")
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).Send(
-			[]byte(err.Error()),
-		)
-	}
-
-	err = t.Execute(ctx, nil)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).Send(
-			[]byte(err.Error()),
-		)
-	}
-
-	ctx.Status(fiber.StatusOK)
-	ctx.Set("Content-Type", "text/html")
-	return nil
 }
