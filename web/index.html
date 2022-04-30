@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>No-nonsense file hosting service</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="style.css" rel="stylesheet">
+    </head>
+    <body>
+        <h1>No-nonsense file hosting service</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form">
+                <input id="file" type="file" />
+            </div>
+
+            <div class="form">
+                <input id="onetime" type="checkbox" />
+                <label for="onetime">one time</label>
+            </div>
+
+            <button type="submit">upload</button>
+        </form>
+
+        <div id="result"></div>
+        <div id="qrcode"></div>
+
+        <hr />
+
+        <div>
+            <p>
+                <code>curl -F 'file=@yourfile.png' <span id="url"></span></code>
+            </p>
+
+            <p>
+                source code:
+                <a href="https://github.com/Murtaza-Udaipurwala/nnfs" target="blank">
+                    Link
+                </a>
+            </p>
+        </div>
+
+        <div>
+            <h2>File retention period</h2>
+            <pre>
+  8640 |---
+       /
+       \
+       |
+   240 |   -----------\
+       |               \
+       |                \
+       |                 \
+       |                  \
+       |                   \
+       |                    \
+       |                     \
+       |                      \
+       |                       \
+       |                        \
+       |                         \
+       |                          \
+       |                           \
+       |                            \
+       |                             \
+       |                              \
+hours  |                               \
+       |                                \
+       |                                 \
+       |                                  \
+       |                                   \
+       |                                    \
+       |                                     \
+       |                                      \
+       |                                       \
+       |                                        \
+       |                                         \
+       |                                          \
+       |                                           \
+    24 |
+       |
+       |
+       |
+       |
+       |
+     --------------------------------------------------------
+     0 |  100KiB       3MiB                        10MiB
+
+                      file size ->
+            </pre>
+
+            <p>
+                <strong>One time</strong> files are deleted immediately once
+                requested.
+            </p>
+        </div>
+
+        <!-- edit the following accordingly -->
+        <div>
+            <h2>Terms of service</h2>
+            <em>fs.murtazau.xyz</em> is not a platform for:
+            <ul>
+                <li>piracy</li>
+                <li>NSFW</li>
+                <li>malware / botnet</li>
+                <li>anything illegal under the Indian Law</li>
+            </ul>
+        </div>
+
+        <div>
+            <p>
+                If you have accidentally uploaded something confidential,
+                please email me at
+                <a href="mailto:murtaza.u6e24@gmail.com">murtaza.u6e24@gmail.com</a>
+                for immediate deletion.
+            </p>
+        </div>
+        <!-- END(edit the following accordingly) -->
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <script src="./main.js"></script>
+    </body>
+</html>

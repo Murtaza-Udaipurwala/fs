@@ -96,7 +96,9 @@ func parseForm(ctx *fiber.Ctx) (*File, *HTTPErr) {
 func CalExpiry(size int64) (time.Time, error) {
 	var dur uint
 
-	if size <= 3*scale {
+	if size <= 1024 * 100 {
+		dur = 8640
+	} else if size <= 3*scale {
 		dur = 240
 	} else {
 		dur = uint((2328*scale - 216*size) / (7 * scale))
