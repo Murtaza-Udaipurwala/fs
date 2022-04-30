@@ -11,5 +11,6 @@ ENTRYPOINT ["/go/fs/fs"]
 FROM alpine:latest
 
 COPY --from=builder /go/fs/fs main
+COPY --from=builder /go/fs/web web
 
 ENTRYPOINT [ "./main" ]
