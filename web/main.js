@@ -1,7 +1,10 @@
+const url = document.URL;
 const form = document.querySelector("form");
 const result = document.getElementById("result");
 const btn = document.querySelector("button");
 const qrcode = document.getElementById("qrcode");
+
+document.getElementById("url").innerText = url;
 
 const isChecked = () => document.getElementById("onetime").checked;
 
@@ -66,7 +69,7 @@ form.addEventListener("submit", (e) => {
         formData.append("onetime", "1");
     }
 
-    fetch("https://fs.murtazau.xyz/?json=1", {
+    fetch(`${url}?json=1`, {
         method: "POST",
         body: formData,
     })

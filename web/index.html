@@ -29,6 +29,10 @@
 
         <div>
             <p>
+                <code>curl -F 'file=@yourfile.png' <span id="url"></span></code>
+            </p>
+
+            <p>
                 source code:
                 <a href="https://github.com/Murtaza-Udaipurwala/nnfs" target="blank">
                     Link
@@ -50,7 +54,11 @@
         <div>
             <h2>File retention period</h2>
             <pre>
-   240 |--------------\
+  8640 |---
+       /
+       \
+       |
+   240 |   -----------\
        |               \
        |                \
        |                 \
@@ -87,7 +95,7 @@ hours  |                               \
        |
        |
      --------------------------------------------------------
-     0 |              3MiB                             10MiB
+     0 |  100KiB       3MiB                        10MiB
 
                       file size ->
             </pre>
