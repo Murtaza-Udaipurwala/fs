@@ -12,7 +12,7 @@ document.querySelector(".url").innerText = url;
 result.style.visibility = "hidden";
 
 function isChecked() {
-    document.getElementById("onetime").checked;
+    return document.getElementById("onetime").checked;
 }
 
 function resetQRCode() {
