@@ -3,35 +3,41 @@ const form = document.querySelector("form");
 const result = document.getElementById("result");
 const btn = document.querySelector("button");
 const qrcode = document.getElementById("qrcode");
+const maxSize = 1024 * 1024 * 10;
 
-document.getElementById("url").innerText = url;
+// set referenced url
+document.querySelector(".url").innerText = url;
 
-const isChecked = () => document.getElementById("onetime").checked;
-
+// hide result region
 result.style.visibility = "hidden";
 
-const populate = (data, uploading, err) => {
-    if (err) {
-        content = "<p>an error occured</p>";
-    } else if (uploading) {
-        content = "<p>Please be patient. Uploading...</p>";
-    } else {
-        content = `<p>URL: ${data["url"]}</p>
+function isChecked() {
+    document.getElementById("onetime").checked;
+}
+
+function resetQRCode() {
+    qrcode.innerHTML = null;
+}
+
+function generateQRCode(url) {
+    new QRCode(qrcode, url);
+}
+
+function feedback(text) {
+    result.innerHTML = `<p>${text}</p>`;
+    result.style.visibility = "visible";
+}
+
+function getFormattedResult(data) {
+    content = `<p>URL: ${data["url"]}</p>
 <p>one time: ${data["onetime"]}</p>
 <p>expiry: ${data["expiry"]}</p>
 `;
 
-        qrcode.innerHTML = null;
-        new QRCode(qrcode, data["url"]);
-    }
+    return content;
+}
 
-    result.innerHTML = content;
-    result.style.visibility = "visible";
-};
-
-const maxSize = 1024 * 1024 * 10;
-
-const validateSize = () => {
+function validateSize() {
     const ifile = document.getElementById("file");
 
     if (ifile.files.length === 0) {
@@ -48,17 +54,50 @@ const validateSize = () => {
     return true;
 };
 
+function toggleForm(disable) {
+    const inputs = document.querySelectorAll("form input");
+    inputs.forEach(input => {
+        input.disabled = disable;
+    });
+
+    const buttons = document.querySelectorAll("form button");
+    buttons.forEach(btn => {
+        btn.disabled = disable;
+    });
+}
+
+function resetForm() {
+    form.reset();
+}
+
+async function upload(formData) {
+    const resp = await fetch(`${url}?json=1`, {
+        method: "POST",
+        body: formData
+    });
+
+    if (!resp.ok) {
+        feedback("An error occured");
+        return;
+    }
+
+    const data = await resp.json();
+
+    const content = getFormattedResult(data);
+    feedback(content);
+
+    return data;
+}
+
 form.addEventListener("submit", (e) => {
     e.preventDefault();
-
-    btn.disabled = true;
-
-    populate(null, true, false);
+    toggleForm(true);
 
     const formData = new FormData();
 
     if (!validateSize()) {
-        form.reset();
+        toggleForm(false);
+        resetForm();
         return;
     }
 
@@ -69,23 +108,14 @@ form.addEventListener("submit", (e) => {
         formData.append("onetime", "1");
     }
 
-    fetch(`${url}?json=1`, {
-        method: "POST",
-        body: formData,
-    })
-        .then((resp) => {
-            if (!resp.ok) {
-                populate(null, false, true);
-                return;
-            }
+    resetQRCode();
+    feedback("Please be patient. Uploading...");
 
-            return resp.json();
-        })
-        .then((data) => {
-            populate(data, false, false);
-            btn.disabled = false;
-        })
-        .catch(() => populate(null, false, true));
+    upload(formData).then((data) => {
+        if (!data) return;
 
-    form.reset();
+        generateQRCode(data["url"]);
+        toggleForm(false);
+        resetForm();
+    });
 });
